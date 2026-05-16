@@ -41,7 +41,7 @@ import com.willfp.eco.internal.logging.EcoLogger
 import com.willfp.eco.internal.logging.NOOPLogger
 import com.willfp.eco.internal.placeholder.PlaceholderParser
 import com.willfp.eco.internal.proxy.EcoProxyFactory
-import com.willfp.eco.internal.scheduling.EcoScheduler
+import com.willfp.eco.internal.scheduling.SchedulerFactory
 import com.willfp.eco.internal.spigot.data.DataYml
 import com.willfp.eco.internal.spigot.data.KeyRegistry
 import com.willfp.eco.internal.spigot.data.profiles.ProfileHandler
@@ -97,7 +97,7 @@ class EcoImpl : EcoSpigotPlugin(), Eco {
     )
 
     override fun createScheduler(plugin: EcoPlugin) =
-        EcoScheduler(plugin)
+        SchedulerFactory.createScheduler(plugin)
 
     override fun createEventManager(plugin: EcoPlugin) =
         EcoEventManager(plugin)

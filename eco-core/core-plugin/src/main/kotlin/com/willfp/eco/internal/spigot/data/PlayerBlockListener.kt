@@ -36,7 +36,7 @@ class PlayerBlockListener(
     fun onBreak(event: BlockBreakEvent) {
         val block = event.block
 
-        this.plugin.scheduler.run {
+        this.plugin.scheduler.runAtLocation(block.location) {
             removeKey(block)
         }
     }
@@ -45,7 +45,7 @@ class PlayerBlockListener(
     fun onGrow(event: StructureGrowEvent) {
         val block = event.location.block
 
-        this.plugin.scheduler.run {
+        this.plugin.scheduler.runAtLocation(block.location) {
             removeKey(block)
         }
     }
@@ -62,12 +62,14 @@ class PlayerBlockListener(
             }
         }
 
-        this.plugin.scheduler.run {
-            for (loc in toRemove) {
+        for (loc in toRemove) {
+            this.plugin.scheduler.runAtLocation(loc) {
                 removeKey(loc)
             }
+        }
 
-            for (loc in locs) {
+        for (loc in locs) {
+            this.plugin.scheduler.runAtLocation(loc) {
                 writeKey(loc)
             }
         }
@@ -85,12 +87,14 @@ class PlayerBlockListener(
             }
         }
 
-        this.plugin.scheduler.run {
-            for (loc in toRemove) {
+        for (loc in toRemove) {
+            this.plugin.scheduler.runAtLocation(loc) {
                 removeKey(loc)
             }
+        }
 
-            for (loc in locs) {
+        for (loc in locs) {
+            this.plugin.scheduler.runAtLocation(loc) {
                 writeKey(loc)
             }
         }

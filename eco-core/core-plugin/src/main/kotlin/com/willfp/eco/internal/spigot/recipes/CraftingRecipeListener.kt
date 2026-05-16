@@ -35,9 +35,10 @@ class CraftingRecipeListener(val plugin: EcoPlugin) : Listener {
         handlePrepare(event)
 
         if (plugin.configYml.getBool("enforce-preparing-recipes")) {
-            plugin.scheduler.runLater(1) {
+            val player = event.view.player as? org.bukkit.entity.Player ?: return
+            plugin.scheduler.runAtEntityLater(player, {
                 handlePrepare(event)
-            }
+            }, 1)
         }
     }
 

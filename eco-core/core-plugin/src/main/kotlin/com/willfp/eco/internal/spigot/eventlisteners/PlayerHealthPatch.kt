@@ -18,9 +18,9 @@ object PlayerHealthPatch: Listener {
     @EventHandler
     fun handlePlayerJoin(event: PlayerJoinEvent) {
         if (Eco.get().ecoPlugin.configYml.getBool("enable-health-fix")) {
-            Eco.get().ecoPlugin.scheduler.runLater(5L) {
+            Eco.get().ecoPlugin.scheduler.runAtEntityLater(event.player, {
                 event.player.health = event.player.savedHealth
-            }
+            }, 5L)
         }
     }
 }

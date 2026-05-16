@@ -1,6 +1,8 @@
 package com.willfp.eco.core.scheduling;
 
 import com.willfp.eco.core.EcoPlugin;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
@@ -136,4 +138,73 @@ public interface Scheduler {
      * Cancel all running tasks from the linked {@link EcoPlugin}.
      */
     void cancelAll();
+
+    /**
+     * Run the task at a specific location (Folia compatible).
+     * <p>
+     * On non-Folia servers, this will run on the main thread.
+     *
+     * @param location The location to run the task at.
+     * @param runnable The lambda to run.
+     * @return The created {@link BukkitTask}.
+     */
+    default BukkitTask runAtLocation(@NotNull Location location,
+                                     @NotNull Runnable runnable) {
+        return run(runnable);
+    }
+
+    /**
+     * Run the task at a specific location after a delay (Folia compatible).
+     * <p>
+     * On non-Folia servers, this will run on the main thread.
+     *
+     * @param location The location to run the task at.
+     * @param runnable The lambda to run.
+     * @param delay    The amount of ticks to wait before execution.
+     * @return The created {@link BukkitTask}.
+     */
+    default BukkitTask runAtLocationLater(@NotNull Location location,
+                                          @NotNull Runnable runnable,
+                                          long delay) {
+        return runLater(runnable, delay);
+    }
+
+    /**
+     * Run the task at a specific entity (Folia compatible).
+     * <p>
+     * On non-Folia servers, this will run on the main thread.
+     *
+     * @param entity   The entity to run the task at.
+     * @param runnable The lambda to run.
+     * @return The created {@link BukkitTask}.
+     */
+    default BukkitTask runAtEntity(@NotNull Entity entity,
+                                   @NotNull Runnable runnable) {
+        return run(runnable);
+    }
+
+    /**
+     * Run the task at a specific entity after a delay (Folia compatible).
+     * <p>
+     * On non-Folia servers, this will run on the main thread.
+     *
+     * @param entity   The entity to run the task at.
+     * @param runnable The lambda to run.
+     * @param delay    The amount of ticks to wait before execution.
+     * @return The created {@link BukkitTask}.
+     */
+    default BukkitTask runAtEntityLater(@NotNull Entity entity,
+                                        @NotNull Runnable runnable,
+                                        long delay) {
+        return runLater(runnable, delay);
+    }
+
+    /**
+     * Check if the server is running Folia.
+     *
+     * @return True if running on Folia, false otherwise.
+     */
+    default boolean isFolia() {
+        return false;
+    }
 }
