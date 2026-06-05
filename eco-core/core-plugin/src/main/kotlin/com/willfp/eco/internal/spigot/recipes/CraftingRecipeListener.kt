@@ -21,12 +21,14 @@ class CraftingRecipeListener(val plugin: EcoPlugin) : Listener {
             event.isCancelled = true
 
             val player = event.player
-            player.discoverRecipe(
-                namespacedKeyOf(
-                    event.recipe.namespace,
-                    event.recipe.key + "_displayed"
+            plugin.scheduler.runAtEntity(player) {
+                player.discoverRecipe(
+                    namespacedKeyOf(
+                        event.recipe.namespace,
+                        event.recipe.key + "_displayed"
+                    )
                 )
-            )
+            }
         }
     }
 
