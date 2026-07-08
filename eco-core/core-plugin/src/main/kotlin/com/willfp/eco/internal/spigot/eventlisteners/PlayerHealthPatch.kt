@@ -19,7 +19,7 @@ object PlayerHealthPatch: Listener {
     fun handlePlayerJoin(event: PlayerJoinEvent) {
         if (Eco.get().ecoPlugin.configYml.getBool("enable-health-fix")) {
             Eco.get().ecoPlugin.scheduler.runAtEntityLater(event.player, {
-                event.player.health = event.player.savedHealth
+                event.player.health = minOf(event.player.savedHealth, event.player.maxHealth)
             }, 5L)
         }
     }

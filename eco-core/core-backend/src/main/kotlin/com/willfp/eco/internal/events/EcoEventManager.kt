@@ -6,6 +6,7 @@ import com.willfp.eco.core.map.listMap
 import com.willfp.eco.core.packet.PacketEvent
 import com.willfp.eco.core.packet.PacketListener
 import com.willfp.eco.core.packet.PacketPriority
+import java.util.concurrent.ConcurrentHashMap
 import org.bukkit.Bukkit
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
@@ -18,6 +19,32 @@ private class RegisteredPacketListener(
 
 private val listeners = listMap<PacketPriority, RegisteredPacketListener>()
 
+/**
+ * Sets of packet classes that have at least one listener registered.
+ * Uses Class identity (not String), so lookup is O(1) with no allocation.
+ * If empty, all packets are processed (backward compatibility).
+ */
+private val handledSendPacketClasses = ConcurrentHashMap.newKeySet<Class<*>>()
+private val handledReceivePacketClasses = ConcurrentHashMap.newKeySet<Class<*>>()
+
+fun registerHandledSendPacket(packetClass: Class<*>) {
+    handledSendPacketClasses.add(packetClass)
+}
+
+fun registerHandledReceivePacket(packetClass: Class<*>) {
+    handledReceivePacketClasses.add(packetClass)
+}
+
+fun hasSendListeners(packetClass: Class<*>): Boolean {
+    val set = handledSendPacketClasses
+    return set.isEmpty() || packetClass in set
+}
+
+fun hasReceiveListeners(packetClass: Class<*>): Boolean {
+    val set = handledReceivePacketClasses
+    return set.isEmpty() || packetClass in set
+}
+
 fun PacketEvent.handleSend() {
     for (priority in PacketPriority.entries) {
         for (listener in listeners[priority]) {
@@ -26,13 +53,13 @@ fun PacketEvent.handleSend() {
             } catch (e: Exception) {
                 listener.plugin.logger.warning(
                     "Exception in packet listener ${listener.listener.javaClass.name}" +
-                            " for packet ${packet.handle.javaClass.name}!"
+                            " for packet ${this.handle.javaClass.name}!"
                 )
                 e.printStackTrace()
             } catch (e: LinkageError) {
                 listener.plugin.logger.warning(
                     "Error in packet listener ${listener.listener.javaClass.name}" +
-                            " for packet ${packet.handle.javaClass.name}!"
+                            " for packet ${this.handle.javaClass.name}!"
                 )
                 e.printStackTrace()
             }
@@ -48,13 +75,13 @@ fun PacketEvent.handleReceive() {
             } catch (e: Exception) {
                 listener.plugin.logger.warning(
                     "Exception in packet listener ${listener.listener.javaClass.name}" +
-                            " for packet ${packet.handle.javaClass.name}!"
+                            " for packet ${this.handle.javaClass.name}!"
                 )
                 e.printStackTrace()
             } catch (e: LinkageError) {
                 listener.plugin.logger.warning(
                     "Error in packet listener ${listener.listener.javaClass.name}" +
-                            " for packet ${packet.handle.javaClass.name}!"
+                            " for packet ${this.handle.javaClass.name}!"
                 )
                 e.printStackTrace()
             }

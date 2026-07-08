@@ -1,6 +1,7 @@
 package com.willfp.eco.internal.spigot.eventlisteners
 
 import com.willfp.eco.core.EcoPlugin
+import java.util.concurrent.ConcurrentHashMap
 import org.bukkit.entity.LivingEntity
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -11,7 +12,7 @@ import org.bukkit.event.entity.EntityDeathEvent
 class EntityDeathByEntityListeners(
     private val plugin: EcoPlugin
 ) : Listener {
-    private val events = mutableSetOf<EntityDeathByEntityBuilder>()
+    private val events = ConcurrentHashMap.newKeySet<EntityDeathByEntityBuilder>()
 
     @EventHandler(priority = EventPriority.HIGH)
     fun onEntityDamage(event: EntityDamageByEntityEvent) {

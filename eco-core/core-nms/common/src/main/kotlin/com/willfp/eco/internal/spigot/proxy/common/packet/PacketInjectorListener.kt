@@ -5,11 +5,19 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import java.util.UUID
+import java.util.concurrent.CopyOnWriteArrayList
 
 private const val BASE_NAME = "packet_handler"
 private const val ECO_NAME = "eco_packets"
 
 object PacketInjectorListener : Listener {
+    private val quitCallbacks = CopyOnWriteArrayList<(UUID) -> Unit>()
+
+    fun onPlayerQuit(callback: (UUID) -> Unit) {
+        quitCallbacks.add(callback)
+    }
+
     @EventHandler
     fun onJoin(event: PlayerJoinEvent) {
         val player = event.player
@@ -38,5 +46,8 @@ object PacketInjectorListener : Listener {
                 channel.pipeline().remove(ECO_NAME)
             }
         }
+
+        val uuid = player.uniqueId
+        quitCallbacks.forEach { it(uuid) }
     }
 }

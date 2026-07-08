@@ -1,6 +1,7 @@
 package com.willfp.eco.internal.spigot.eventlisteners
 
 import com.willfp.eco.core.events.NaturalExpGainEvent
+import java.util.concurrent.ConcurrentHashMap
 import org.bukkit.Bukkit
 import org.bukkit.entity.ThrownExpBottle
 import org.bukkit.event.EventHandler
@@ -23,7 +24,7 @@ class NaturalExpGainListenersPaper : Listener {
 }
 
 class NaturalExpGainListenersSpigot : Listener {
-    private val events: MutableSet<NaturalExpGainBuilder> = HashSet()
+    private val events = ConcurrentHashMap.newKeySet<NaturalExpGainBuilder>()
 
     @EventHandler
     fun playerChange(event: PlayerExpChangeEvent) {

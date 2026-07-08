@@ -26,7 +26,7 @@ open class PacketWindowItems(
         .apply { isAccessible = true }
 
     override fun onSend(event: PacketEvent) {
-        val packet = event.packet.handle as? ClientboundContainerSetContentPacket ?: return
+        val packet = event.handle as? ClientboundContainerSetContentPacket ?: return
         val player = event.player
 
         Display.display(packet.carriedItem.asBukkitStack(), player)

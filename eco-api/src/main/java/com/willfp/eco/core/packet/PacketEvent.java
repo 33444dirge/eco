@@ -9,9 +9,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public class PacketEvent implements Cancellable {
     /**
-     * The packet.
+     * The raw packet handle (NMS object).
+     * Use this directly instead of via the Packet wrapper to avoid object allocation.
      */
-    private final Packet packet;
+    private Object handle;
 
     /**
      * The player.
@@ -24,25 +25,47 @@ public class PacketEvent implements Cancellable {
     private boolean cancelled = false;
 
     /**
-     * Create a new packet event.
+     * Create a new packet event from a raw NMS handle.
+     * This is the preferred constructor - avoids Packet wrapper allocation.
      *
-     * @param packet The packet.
+     * @param handle The raw NMS packet handle.
      * @param player The player.
      */
-    public PacketEvent(@NotNull final Packet packet,
+    public PacketEvent(@NotNull final Object handle,
                        @NotNull final Player player) {
-        this.packet = packet;
+        this.handle = handle;
         this.player = player;
     }
 
     /**
-     * Get the packet.
+     * Get the raw packet handle.
      *
-     * @return The packet.
+     * @return The raw packet handle.
      */
     @NotNull
+    public Object getHandle() {
+        return handle;
+    }
+
+    /**
+     * Set the raw packet handle.
+     *
+     * @param handle The raw packet handle.
+     */
+    public void setHandle(@NotNull final Object handle) {
+        this.handle = handle;
+    }
+
+    /**
+     * Get the packet wrapper.
+     *
+     * @return The packet wrapper.
+     * @deprecated Use {@link #getHandle()} directly to avoid object allocation.
+     */
+    @Deprecated
+    @NotNull
     public Packet getPacket() {
-        return packet;
+        return new Packet(handle);
     }
 
     /**

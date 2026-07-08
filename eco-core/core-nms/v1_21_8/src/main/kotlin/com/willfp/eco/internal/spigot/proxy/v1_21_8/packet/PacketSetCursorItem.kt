@@ -46,7 +46,7 @@ object PacketSetCursorItem : PacketListener {
     }
 
     override fun onSend(event: PacketEvent) {
-        val packet = event.packet.handle as? ClientboundSetCursorItemPacket ?: return
+        val packet = event.handle as? ClientboundSetCursorItemPacket ?: return
 
         val contents = packet.contents
 
@@ -67,7 +67,7 @@ object PacketSetCursorItem : PacketListener {
 
         val displayed = HashedStack.create(packet.contents, cache::getUnchecked)
 
-        PacketContainerClick.map(original, (displayed as HashedStack.ActualItem).hash())
+        PacketContainerClick.map(player.uniqueId, original, (displayed as HashedStack.ActualItem).hash())
 
         player.lastDisplayFrame = DisplayFrame.EMPTY
     }

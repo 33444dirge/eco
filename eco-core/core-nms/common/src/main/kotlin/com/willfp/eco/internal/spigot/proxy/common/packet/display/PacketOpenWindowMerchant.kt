@@ -18,7 +18,7 @@ object PacketOpenWindowMerchant : PacketListener {
         .apply { isAccessible = true }
 
     override fun onSend(event: PacketEvent) {
-        val packet = event.packet.handle as? ClientboundMerchantOffersPacket ?: return
+        val packet = event.handle as? ClientboundMerchantOffersPacket ?: return
 
         val offers = MerchantOffers()
 

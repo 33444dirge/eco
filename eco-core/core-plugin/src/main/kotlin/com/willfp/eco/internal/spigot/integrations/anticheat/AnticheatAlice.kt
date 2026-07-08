@@ -2,6 +2,7 @@ package com.willfp.eco.internal.spigot.integrations.anticheat
 
 import com.willfp.eco.core.integrations.anticheat.AnticheatIntegration
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import me.nik.alice.api.events.AliceViolationEvent
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -9,7 +10,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 
 class AnticheatAlice : AnticheatIntegration, Listener {
-    private val exempt: MutableSet<UUID> = HashSet()
+    private val exempt = ConcurrentHashMap.newKeySet<UUID>()
 
     override fun getPluginName(): String {
         return "Alice"

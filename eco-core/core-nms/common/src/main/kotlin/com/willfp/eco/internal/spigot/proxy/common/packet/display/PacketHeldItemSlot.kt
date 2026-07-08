@@ -8,7 +8,7 @@ import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket
 
 object PacketHeldItemSlot : PacketListener {
     override fun onReceive(event: PacketEvent) {
-        if (event.packet.handle !is ServerboundSetCarriedItemPacket) {
+        if (event.handle !is ServerboundSetCarriedItemPacket) {
             return
         }
 

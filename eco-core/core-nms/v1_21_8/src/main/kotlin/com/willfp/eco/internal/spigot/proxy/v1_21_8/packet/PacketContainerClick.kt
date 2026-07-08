@@ -6,23 +6,31 @@ import com.willfp.eco.internal.spigot.proxy.common.packet.display.frame.DisplayF
 import com.willfp.eco.internal.spigot.proxy.common.packet.display.frame.lastDisplayFrame
 import net.minecraft.network.HashedStack
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 object PacketContainerClick : PacketListener {
-    // Displayed hash -> original, required to avoid ghost items in cursor
-    private val originals = hashMapOf<Int, HashedStack>()
+    // Player UUID -> (Displayed hash -> Original), required to avoid ghost items in cursor
+    private val originals = ConcurrentHashMap<UUID, ConcurrentHashMap<Int, HashedStack>>()
 
-    fun map(original: HashedStack, displayed: Int) {
-        originals[displayed] = original
+    fun map(player: UUID, original: HashedStack, displayed: Int) {
+        originals.getOrPut(player) { ConcurrentHashMap() }[displayed] = original
+    }
+
+    fun clearPlayer(player: UUID) {
+        originals.remove(player)
     }
 
     override fun onReceive(event: PacketEvent) {
-        val packet = event.packet.handle as? ServerboundContainerClickPacket ?: return
+        val packet = event.handle as? ServerboundContainerClickPacket ?: return
 
         val carried = packet.carriedItem as? HashedStack.ActualItem ?: return
         val player = event.player
-        val original = originals[carried.hash()] ?: return
+        val playerOriginals = originals[player.uniqueId] ?: return
 
-        event.packet.handle = ServerboundContainerClickPacket(
+        val original = playerOriginals.remove(carried.hash()) ?: return
+
+        event.handle = ServerboundContainerClickPacket(
             packet.containerId,
             packet.stateId,
             packet.slotNum,

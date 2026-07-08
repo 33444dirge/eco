@@ -10,7 +10,7 @@ import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 
 object PacketSetSlot : PacketListener {
     override fun onSend(event: PacketEvent) {
-        val packet = event.packet.handle as? ClientboundContainerSetSlotPacket ?: return
+        val packet = event.handle as? ClientboundContainerSetSlotPacket ?: return
 
         Display.display(packet.item.asBukkitStack(), event.player)
 

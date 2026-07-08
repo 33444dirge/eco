@@ -4,6 +4,7 @@ import com.willfp.eco.core.events.PlayerJumpEvent
 import com.willfp.eco.core.integrations.mcmmo.McmmoManager
 import java.text.DecimalFormat
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
@@ -40,7 +41,7 @@ class PlayerJumpListenersSpigot : Listener {
     }
 
     companion object {
-        private val PREVIOUS_PLAYERS_ON_GROUND: MutableSet<UUID> = HashSet()
+        private val PREVIOUS_PLAYERS_ON_GROUND = ConcurrentHashMap.newKeySet<UUID>()
         private val FORMAT = DecimalFormat("0.00")
     }
 }

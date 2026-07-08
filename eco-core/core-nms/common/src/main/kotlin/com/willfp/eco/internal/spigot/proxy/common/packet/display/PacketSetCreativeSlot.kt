@@ -10,7 +10,7 @@ import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket
 
 object PacketSetCreativeSlot : PacketListener {
     override fun onReceive(event: PacketEvent) {
-        val packet = event.packet.handle as? ServerboundSetCreativeModeSlotPacket ?: return
+        val packet = event.handle as? ServerboundSetCreativeModeSlotPacket ?: return
 
         Display.revert(packet.itemStack.asBukkitStack())
 
