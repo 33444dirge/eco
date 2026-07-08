@@ -132,7 +132,7 @@ allprojects {
         // Test
         testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.3")
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:6.0.3")
-        testRuntimeOnly("org.junit.platform:junit-platform-launcher:2.0.3")
+        testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.0.3")
         testImplementation("io.mockk:mockk-jvm:1.13.17")
 
         // Adventure (provided at runtime via Paper library loader)

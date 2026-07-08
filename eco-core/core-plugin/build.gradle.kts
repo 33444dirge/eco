@@ -21,8 +21,7 @@ val vendorBStats by tasks.registering {
              */
         """.trimIndent() + "\n"
 
-        val cloneDir = temporaryDir.resolve("bstats-metrics")
-        cloneDir.deleteRecursively()
+        val cloneDir = temporaryDir.resolve("bstats-metrics-${System.currentTimeMillis()}")
 
         val clone = ProcessBuilder(
             "git", "clone", "--depth", "1", "--branch", bStatsVersion,
@@ -122,7 +121,7 @@ dependencies {
     compileOnly("com.github.jojodmo:ItemBridge:b0054538c1")
     compileOnly("de.oliver:FancyHolograms:2.9.1")
     compileOnly("su.nightexpress.excellenteconomy:ExcellentEconomy:2.8.0")
-    compileOnly("su.nightexpress.nightcore:main:2.15.3")
+    compileOnly("su.nightexpress.nightcore:main:2.16.3")
     compileOnly("su.nightexpress.excellentshop:Core:4.22.0")
     compileOnly("dev.kitteh:factions:4.4.0")
 
