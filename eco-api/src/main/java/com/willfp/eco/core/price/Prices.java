@@ -10,6 +10,7 @@ import com.willfp.eco.core.price.impl.PriceItem;
 import com.willfp.eco.core.recipe.parts.EmptyTestableItem;
 import com.willfp.eco.util.NumberUtils;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,14 +25,54 @@ public final class Prices {
     private static final Map<String, PriceFactory> FACTORIES = new ConcurrentHashMap<>();
 
     /**
+     * Returns an immutable snapshot of all loaded price factory names.
+     *
+     * @return Immutable set containing all loaded factory names
+     */
+    public static Set<String> allLoadedFactories() {
+        return Set.copyOf(FACTORIES.keySet());
+    }
+
+    /**
      * Register a new price factory.
      *
      * @param factory The factory.
      */
     public static void registerPriceFactory(@NotNull final PriceFactory factory) {
         for (String name : factory.getNames()) {
-            FACTORIES.put(name.toLowerCase(), factory);
+            String key = name.toLowerCase();
+            PriceFactory existing = FACTORIES.get(key);
+            if (existing != null && existing != factory) {
+                throw new IllegalStateException(String.format(
+                        "A price factory is already registered under the name '%s' (%s). Cannot register %s.",
+                        key, existing.getClass().getName(), factory.getClass().getName()
+                ));
+            }
+            FACTORIES.put(key, factory);
         }
+    }
+
+    /**
+     * Unregister a price factory by exact instance.
+     * <p>
+     * Only removes a name mapping if it currently points to this exact factory,
+     * so it cannot evict a different factory that owns the same name.
+     *
+     * @param factory The factory to unregister.
+     */
+    public static void unregisterPriceFactory(@NotNull final PriceFactory factory) {
+        for (String name : factory.getNames()) {
+            FACTORIES.remove(name.toLowerCase(), factory);
+        }
+    }
+
+    /**
+     * Unregister whatever price factory is registered under a name.
+     *
+     * @param name The name to unregister.
+     */
+    public static void unregisterPriceFactory(@NotNull final String name) {
+        FACTORIES.remove(name.toLowerCase());
     }
 
     /**

@@ -100,6 +100,7 @@ import com.willfp.eco.internal.entities.EntityArgParserNoAI
 import com.willfp.eco.internal.entities.EntityArgParserScale
 import com.willfp.eco.internal.entities.EntityArgParserSilent
 import com.willfp.eco.internal.entities.EntityArgParserSize
+import com.willfp.eco.internal.entities.EntityArgParserTamed
 import com.willfp.eco.internal.entities.EntityArgParserSpawnReinforcements
 import com.willfp.eco.internal.entities.EntityArgParserSpeed
 import com.willfp.eco.internal.items.ArgParserAttribute
@@ -124,6 +125,7 @@ import com.willfp.eco.internal.items.ArgParserTexture
 import com.willfp.eco.internal.items.ArgParserTooltipStyle
 import com.willfp.eco.internal.items.ArgParserTrim
 import com.willfp.eco.internal.items.ArgParserUnbreakable
+import com.willfp.eco.internal.items.ArgParserUnenchantable
 import com.willfp.eco.internal.items.tags.VanillaItemTags
 import com.willfp.eco.internal.lookup.SegmentParserGroup
 import com.willfp.eco.internal.lookup.SegmentParserUseIfPresent
@@ -142,6 +144,7 @@ import com.willfp.eco.internal.spigot.eventlisteners.EntityDeathByEntityListener
 import com.willfp.eco.internal.spigot.eventlisteners.NaturalExpGainListenersPaper
 import com.willfp.eco.internal.spigot.eventlisteners.NaturalExpGainListenersSpigot
 import com.willfp.eco.internal.spigot.eventlisteners.PlayerHealthPatch
+import com.willfp.eco.internal.spigot.eventlisteners.UnenchantablePatch
 import com.willfp.eco.internal.spigot.eventlisteners.PlayerJumpListenersPaper
 import com.willfp.eco.internal.spigot.eventlisteners.PlayerJumpListenersSpigot
 import com.willfp.eco.internal.spigot.eventlisteners.armor.ArmorChangeEventListeners
@@ -252,6 +255,7 @@ abstract class EcoSpigotPlugin : EcoPlugin() {
         Items.registerArgParser(ArgParserTooltipStyle)
         Items.registerArgParser(ArgParserTrim)
         Items.registerArgParser(ArgParserAttribute)
+        Items.registerArgParser(ArgParserUnenchantable)
 
         Blocks.registerArgParser(BlockArgParserAgeable)
         Blocks.registerArgParser(BlockArgParserAnaloguePowerable)
@@ -320,6 +324,7 @@ abstract class EcoSpigotPlugin : EcoPlugin() {
         Entities.registerArgParser(EntityArgParserSpeed)
         Entities.registerArgParser(EntityArgParserBaby)
         Entities.registerArgParser(EntityArgParserAdult)
+        Entities.registerArgParser(EntityArgParserTamed)
         Entities.registerArgParser(EntityArgParserCharged)
         Entities.registerArgParser(EntityArgParserExplosionRadius)
         Entities.registerArgParser(EntityArgParserSilent)
@@ -545,7 +550,7 @@ abstract class EcoSpigotPlugin : EcoPlugin() {
                     }
                 }
             },
-            IntegrationLoader("CoinsEngine") {
+            IntegrationLoader("ExcellentEconomy") {
                 val rsp = Bukkit.getServer().servicesManager.getRegistration(ExcellentEconomyAPI::class.java)
                 if (rsp != null) {
                     val api = rsp.provider
@@ -582,7 +587,8 @@ abstract class EcoSpigotPlugin : EcoPlugin() {
             PlayerBlockListener(this),
             ServerLocking,
             AutocrafterPatch,
-            PlayerHealthPatch
+            PlayerHealthPatch,
+            UnenchantablePatch
         )
 
         if (Prerequisite.HAS_PAPER.isMet) {
