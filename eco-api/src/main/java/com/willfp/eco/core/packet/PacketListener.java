@@ -1,5 +1,7 @@
 package com.willfp.eco.core.packet;
 
+import java.util.Collection;
+import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -22,6 +24,26 @@ public interface PacketListener {
      */
     default void onReceive(@NotNull final PacketEvent event) {
         // Override when needed.
+    }
+
+    /**
+     * Get the packet classes this listener handles when sent to the player.
+     *
+     * @return The handled send packet classes.
+     */
+    @NotNull
+    default Collection<Class<?>> getSendPacketClasses() {
+        return Collections.emptyList();
+    }
+
+    /**
+     * Get the packet classes this listener handles when received from the player.
+     *
+     * @return The handled receive packet classes.
+     */
+    @NotNull
+    default Collection<Class<?>> getReceivePacketClasses() {
+        return Collections.emptyList();
     }
 
     /**

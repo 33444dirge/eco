@@ -36,6 +36,9 @@ object PacketSetCursorItem : PacketListener {
         .first { it.type == ContainerSynchronizer::class.java }
         .apply { isAccessible = true }
 
+    override fun getSendPacketClasses(): Collection<Class<*>> =
+        listOf(ClientboundSetCursorItemPacket::class.java)
+
     private fun ContainerSynchronizer.getCache(): LoadingCache<TypedDataComponent<*>, Int> {
         @Suppress("UNCHECKED_CAST")
         return this::class.java

@@ -32,7 +32,7 @@ object PacketInjectorListener : Listener {
             return
         }
 
-        channel.pipeline().addBefore(BASE_NAME, ECO_NAME, EcoChannelDuplexHandler(player.uniqueId))
+        channel.pipeline().addBefore(BASE_NAME, ECO_NAME, EcoChannelDuplexHandler(player))
     }
 
     @EventHandler

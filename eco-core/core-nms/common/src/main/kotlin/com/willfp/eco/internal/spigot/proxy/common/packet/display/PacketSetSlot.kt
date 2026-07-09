@@ -9,6 +9,9 @@ import com.willfp.eco.internal.spigot.proxy.common.packet.display.frame.lastDisp
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 
 object PacketSetSlot : PacketListener {
+    override fun getSendPacketClasses(): Collection<Class<*>> =
+        listOf(ClientboundContainerSetSlotPacket::class.java)
+
     override fun onSend(event: PacketEvent) {
         val packet = event.handle as? ClientboundContainerSetSlotPacket ?: return
 

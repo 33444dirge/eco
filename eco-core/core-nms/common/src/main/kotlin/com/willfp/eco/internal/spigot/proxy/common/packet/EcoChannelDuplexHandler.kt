@@ -8,31 +8,28 @@ import com.willfp.eco.internal.events.handleSend
 import io.netty.channel.ChannelDuplexHandler
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelPromise
-import java.util.UUID
-import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
 class EcoChannelDuplexHandler(
-    private val uuid: UUID
+    private val player: Player
 ) : ChannelDuplexHandler() {
-
-    private var cachedPlayer: Player? = null
 
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
         // Fast path: check packet type BEFORE any player lookup
-        if (!hasReceiveListeners(msg.javaClass)) {
+        val packetClass = msg.javaClass
+        if (!hasReceiveListeners(packetClass)) {
             super.channelRead(ctx, msg)
             return
         }
 
-        val player = getPlayer() ?: run {
+        if (!player.isOnline) {
             super.channelRead(ctx, msg)
             return
         }
 
         val event = PacketEvent(msg, player)
 
-        event.handleReceive()
+        event.handleReceive(packetClass)
 
         if (!event.isCancelled) {
             super.channelRead(ctx, event.handle)
@@ -41,31 +38,23 @@ class EcoChannelDuplexHandler(
 
     override fun write(ctx: ChannelHandlerContext, msg: Any, promise: ChannelPromise) {
         // Fast path: check packet type BEFORE any player lookup
-        if (!hasSendListeners(msg.javaClass)) {
+        val packetClass = msg.javaClass
+        if (!hasSendListeners(packetClass)) {
             super.write(ctx, msg, promise)
             return
         }
 
-        val player = getPlayer() ?: run {
+        if (!player.isOnline) {
             super.write(ctx, msg, promise)
             return
         }
 
         val event = PacketEvent(msg, player)
 
-        event.handleSend()
+        event.handleSend(packetClass)
 
         if (!event.isCancelled) {
             super.write(ctx, event.handle, promise)
         }
-    }
-
-    private fun getPlayer(): Player? {
-        cachedPlayer?.let { player ->
-            if (player.isOnline) {
-                return player
-            }
-        }
-        return Bukkit.getPlayer(uuid)?.also { cachedPlayer = it }
     }
 }

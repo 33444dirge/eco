@@ -9,6 +9,9 @@ import com.willfp.eco.internal.spigot.proxy.common.packet.display.frame.lastDisp
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket
 
 object NewItemsPacketSetCreativeSlot : PacketListener {
+    override fun getReceivePacketClasses(): Collection<Class<*>> =
+        listOf(ServerboundSetCreativeModeSlotPacket::class.java)
+
     override fun onReceive(event: PacketEvent) {
         val packet = event.handle as? ServerboundSetCreativeModeSlotPacket ?: return
 

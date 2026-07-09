@@ -13,6 +13,9 @@ object NewItemsPacketOpenWindowMerchant : PacketListener {
         .first { it.type == MerchantOffers::class.java }
         .apply { isAccessible = true }
 
+    override fun getSendPacketClasses(): Collection<Class<*>> =
+        listOf(ClientboundMerchantOffersPacket::class.java)
+
     override fun onSend(event: PacketEvent) {
         val packet = event.handle as? ClientboundMerchantOffersPacket ?: return
 

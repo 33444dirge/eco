@@ -7,6 +7,9 @@ import com.willfp.eco.internal.spigot.proxy.common.packet.display.frame.lastDisp
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket
 
 object PacketHeldItemSlot : PacketListener {
+    override fun getReceivePacketClasses(): Collection<Class<*>> =
+        listOf(ServerboundSetCarriedItemPacket::class.java)
+
     override fun onReceive(event: PacketEvent) {
         if (event.handle !is ServerboundSetCarriedItemPacket) {
             return

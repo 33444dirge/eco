@@ -25,6 +25,9 @@ open class PacketWindowItems(
         .first { it.type == List::class.java }
         .apply { isAccessible = true }
 
+    override fun getSendPacketClasses(): Collection<Class<*>> =
+        listOf(ClientboundContainerSetContentPacket::class.java)
+
     override fun onSend(event: PacketEvent) {
         val packet = event.handle as? ClientboundContainerSetContentPacket ?: return
         val player = event.player

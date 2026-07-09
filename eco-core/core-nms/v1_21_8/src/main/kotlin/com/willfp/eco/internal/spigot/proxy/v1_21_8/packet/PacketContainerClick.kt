@@ -13,6 +13,9 @@ object PacketContainerClick : PacketListener {
     // Player UUID -> (Displayed hash -> Original), required to avoid ghost items in cursor
     private val originals = ConcurrentHashMap<UUID, ConcurrentHashMap<Int, HashedStack>>()
 
+    override fun getReceivePacketClasses(): Collection<Class<*>> =
+        listOf(ServerboundContainerClickPacket::class.java)
+
     fun map(player: UUID, original: HashedStack, displayed: Int) {
         originals.getOrPut(player) { ConcurrentHashMap() }[displayed] = original
     }
