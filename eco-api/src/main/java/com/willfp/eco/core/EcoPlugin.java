@@ -28,6 +28,7 @@ import com.willfp.eco.core.version.Version;
 import com.willfp.eco.core.web.UpdateChecker;
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -66,7 +67,7 @@ public abstract class EcoPlugin extends JavaPlugin implements PluginLike, Regist
     /**
      * Loaded integrations.
      */
-    private final Set<String> loadedIntegrations = new HashSet<>();
+    private final Set<String> loadedIntegrations = ConcurrentHashMap.newKeySet();
 
     /**
      * The plugin scheduler.

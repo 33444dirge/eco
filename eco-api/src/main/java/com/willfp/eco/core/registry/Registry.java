@@ -2,6 +2,7 @@ package com.willfp.eco.core.registry;
 
 import com.google.common.base.Preconditions;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +21,7 @@ public class Registry<T extends Registrable> implements Iterable<T> {
     /**
      * The registry.
      */
-    private final Map<String, T> registry = new HashMap<>();
+    private final Map<String, T> registry = new ConcurrentHashMap<>();
 
     /**
      * If the registry is locked.
@@ -31,7 +32,7 @@ public class Registry<T extends Registrable> implements Iterable<T> {
      * Cached values set, invalidated on mutation.
      */
     @Nullable
-    private Set<T> cachedValues = null;
+    private volatile Set<T> cachedValues = null;
 
     /**
      * The locker, used to 'secure' registries and prevent random unlocking.

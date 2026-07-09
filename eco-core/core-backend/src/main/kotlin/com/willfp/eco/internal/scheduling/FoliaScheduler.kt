@@ -45,7 +45,7 @@ class FoliaScheduler(private val plugin: EcoPlugin) : Scheduler {
             period,
             TimeUnit.MILLISECONDS
         )
-        return FoliaTaskAdapter(task, plugin)
+        return FoliaTaskAdapter(task, plugin, false)
     }
 
     override fun run(runnable: Runnable): BukkitTask {
@@ -55,7 +55,7 @@ class FoliaScheduler(private val plugin: EcoPlugin) : Scheduler {
 
     override fun runAsync(runnable: Runnable): BukkitTask {
         val task = Bukkit.getAsyncScheduler().runNow(plugin) { runnable.run() }
-        return FoliaTaskAdapter(task, plugin)
+        return FoliaTaskAdapter(task, plugin, false)
     }
 
     override fun syncRepeating(

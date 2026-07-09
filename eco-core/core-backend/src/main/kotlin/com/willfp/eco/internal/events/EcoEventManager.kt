@@ -2,11 +2,12 @@ package com.willfp.eco.internal.events
 
 import com.willfp.eco.core.EcoPlugin
 import com.willfp.eco.core.events.EventManager
-import com.willfp.eco.core.map.listMap
 import com.willfp.eco.core.packet.PacketEvent
 import com.willfp.eco.core.packet.PacketListener
 import com.willfp.eco.core.packet.PacketPriority
+import java.util.EnumMap
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import org.bukkit.Bukkit
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
@@ -17,7 +18,16 @@ private class RegisteredPacketListener(
     val listener: PacketListener
 )
 
-private val listeners = listMap<PacketPriority, RegisteredPacketListener>()
+private val listeners = EnumMap<PacketPriority, CopyOnWriteArrayList<RegisteredPacketListener>>(
+    PacketPriority::class.java
+).apply {
+    for (priority in PacketPriority.entries) {
+        this[priority] = CopyOnWriteArrayList()
+    }
+}
+
+private fun listenersFor(priority: PacketPriority): CopyOnWriteArrayList<RegisteredPacketListener> =
+    listeners[priority] ?: error("Missing packet listener list for $priority")
 
 /**
  * Sets of packet classes that have at least one listener registered.
@@ -47,7 +57,7 @@ fun hasReceiveListeners(packetClass: Class<*>): Boolean {
 
 fun PacketEvent.handleSend() {
     for (priority in PacketPriority.entries) {
-        for (listener in listeners[priority]) {
+        for (listener in listenersFor(priority)) {
             try {
                 listener.listener.onSend(this)
             } catch (e: Exception) {
@@ -69,7 +79,7 @@ fun PacketEvent.handleSend() {
 
 fun PacketEvent.handleReceive() {
     for (priority in PacketPriority.entries) {
-        for (listener in listeners[priority]) {
+        for (listener in listenersFor(priority)) {
             try {
                 listener.listener.onReceive(this)
             } catch (e: Exception) {
@@ -106,7 +116,7 @@ class EcoEventManager(private val plugin: EcoPlugin) : EventManager {
     }
 
     override fun registerPacketListener(listener: PacketListener) {
-        listeners[listener.priority].add(
+        listenersFor(listener.priority).add(
             RegisteredPacketListener(
                 plugin,
                 listener

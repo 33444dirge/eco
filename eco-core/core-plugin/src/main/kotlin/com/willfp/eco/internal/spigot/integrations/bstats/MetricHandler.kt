@@ -23,6 +23,7 @@ object MetricHandler {
         metrics.addCustomChart(
             AdvancedPie("integrations_active") {
                 plugin.loadedIntegrations
+                    .toSet()
                     .associateWith { 1 }
                     .ifEmpty { null }
             }

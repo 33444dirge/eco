@@ -30,7 +30,7 @@ open class FoliaRunnableTask(
     override fun runTaskAsynchronously(): BukkitTask {
         val scheduledTask = org.bukkit.Bukkit.getAsyncScheduler().runNow(plugin) { run() }
         this.task = scheduledTask
-        return FoliaTaskAdapter(scheduledTask, plugin)
+        return FoliaTaskAdapter(scheduledTask, plugin, false)
     }
 
     @Synchronized
@@ -51,7 +51,7 @@ open class FoliaRunnableTask(
             TimeUnit.MILLISECONDS
         )
         this.task = scheduledTask
-        return FoliaTaskAdapter(scheduledTask, plugin)
+        return FoliaTaskAdapter(scheduledTask, plugin, false)
     }
 
     @Synchronized
@@ -75,7 +75,7 @@ open class FoliaRunnableTask(
             TimeUnit.MILLISECONDS
         )
         this.task = scheduledTask
-        return FoliaTaskAdapter(scheduledTask, plugin)
+        return FoliaTaskAdapter(scheduledTask, plugin, false)
     }
 
     override fun cancel() {

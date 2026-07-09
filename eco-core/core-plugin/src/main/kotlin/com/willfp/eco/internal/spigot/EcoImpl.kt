@@ -66,6 +66,7 @@ import com.willfp.eco.internal.spigot.proxies.SkullProxy
 import com.willfp.eco.internal.spigot.proxies.TPSProxy
 import java.net.URLClassLoader
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import net.kyori.adventure.text.Component
 import org.bukkit.Location
 import org.bukkit.NamespacedKey
@@ -79,7 +80,10 @@ import org.bukkit.inventory.Recipe
 import org.bukkit.inventory.meta.SkullMeta
 import org.bukkit.persistence.PersistentDataContainer
 
-private val loadedEcoPlugins = mutableMapOf<String, EcoPlugin>()
+private val loadedEcoPlugins = ConcurrentHashMap<String, EcoPlugin>()
+
+private fun loadedEcoPluginsSnapshot(): Set<EcoPlugin> =
+    loadedEcoPlugins.values.toSet()
 
 @Suppress("UNUSED")
 class EcoImpl : EcoSpigotPlugin(), Eco {
@@ -398,10 +402,10 @@ class EcoImpl : EcoSpigotPlugin(), Eco {
     override fun getCustomCharts() = listOf(
         EcoMetricsChart.SimplePie("data_handler") { profileHandler.defaultHandler.id },
         EcoMetricsChart.SingleLine("loaded_eco_plugins") {
-            loadedEcoPlugins.values.distinct().size
+            loadedEcoPluginsSnapshot().size
         },
         EcoMetricsChart.SingleLine("loaded_extensions") {
-            loadedEcoPlugins.values.distinct()
+            loadedEcoPluginsSnapshot()
                 .sumOf { it.extensionLoader.getLoadedExtensions().size }
         },
         EcoMetricsChart.AdvancedPie("antigrief_integrations") {

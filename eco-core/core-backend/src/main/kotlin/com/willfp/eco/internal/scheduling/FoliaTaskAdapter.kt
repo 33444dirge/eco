@@ -6,7 +6,8 @@ import org.bukkit.scheduler.BukkitTask
 
 class FoliaTaskAdapter(
     private val task: ScheduledTask?,
-    private val plugin: Plugin
+    private val plugin: Plugin,
+    private val sync: Boolean = true
 ) : BukkitTask {
     override fun getOwner(): Plugin {
         return plugin
@@ -17,7 +18,7 @@ class FoliaTaskAdapter(
     }
 
     override fun isSync(): Boolean {
-        return true
+        return sync
     }
 
     override fun isCancelled(): Boolean {
