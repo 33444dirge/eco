@@ -7,11 +7,12 @@ import com.willfp.eco.internal.drops.EcoFastCollatedDropQueue
 class CollatedRunnable(plugin: EcoPlugin) {
     init {
         plugin.scheduler.runTimer({
-            val entries = EcoFastCollatedDropQueue.COLLATED_MAP.entries.toList()
-            for ((key, value) in entries) {
+            val keys = EcoFastCollatedDropQueue.COLLATED_MAP.keys.toList()
+            for (key in keys) {
+                val value = EcoFastCollatedDropQueue.COLLATED_MAP.remove(key) ?: continue
                 plugin.scheduler.runAtLocation(value.location) {
-                    val queue = EcoDropQueue(key)
-                        .setLocation(value.location)
+                    val queue = EcoDropQueue(value.player)
+                        .setLocation(value.location.clone())
                         .addItems(value.drops)
                         .addXP(value.xp)
 
@@ -21,7 +22,6 @@ class CollatedRunnable(plugin: EcoPlugin) {
 
                     queue.push()
                 }
-                EcoFastCollatedDropQueue.COLLATED_MAP.remove(key)
             }
         }, 0, 1)
     }

@@ -28,7 +28,7 @@ object NewItemsPacketOpenWindowMerchant : PacketListener {
             if (new.costB.isPresent) {
                 Display.display(new.costB.get().itemStack.asBukkitStack(), event.player)
             }
-            Display.display(new.result.asBukkitStack(), event.player)
+            Display.display(new.getResult().asBukkitStack(), event.player)
 
             offers += new
         }

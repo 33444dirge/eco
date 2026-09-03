@@ -4,28 +4,29 @@ import java.util.concurrent.ConcurrentHashMap
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import java.util.UUID
 
 class EcoFastCollatedDropQueue(player: Player) : EcoDropQueue(player) {
     override fun push() {
-        val fetched = COLLATED_MAP[player]
-
-        if (fetched == null) {
-            COLLATED_MAP[player] = CollatedDrops(items, location, xp, hasTelekinesis)
-        } else {
-            fetched.addDrops(items)
-            fetched.location = location
-            fetched.addXp(xp)
-            if (this.hasTelekinesis) {
-                fetched.forceTelekinesis()
+        val key = CollatedDropKey(player.uniqueId, location)
+        COLLATED_MAP.compute(key) { _, fetched ->
+            if (fetched == null) {
+                CollatedDrops(player, items.toMutableList(), location.clone(), xp, hasTelekinesis)
+            } else {
+                fetched.addDrops(items)
+                fetched.addXp(xp)
+                if (hasTelekinesis) {
+                    fetched.forceTelekinesis()
+                }
+                fetched
             }
-
-            COLLATED_MAP[player] = fetched
         }
     }
 
     class CollatedDrops(
+        val player: Player,
         val drops: MutableList<ItemStack>,
-        var location: Location,
+        val location: Location,
         var xp: Int,
         var telekinetic: Boolean
     ) {
@@ -45,6 +46,22 @@ class EcoFastCollatedDropQueue(player: Player) : EcoDropQueue(player) {
     }
 
     companion object {
-        val COLLATED_MAP: MutableMap<Player, CollatedDrops> = ConcurrentHashMap()
+        val COLLATED_MAP = ConcurrentHashMap<CollatedDropKey, CollatedDrops>()
     }
+}
+
+data class CollatedDropKey(
+    val playerId: UUID,
+    val worldId: UUID,
+    val x: Double,
+    val y: Double,
+    val z: Double
+) {
+    constructor(playerId: UUID, location: Location) : this(
+        playerId,
+        requireNotNull(location.world) { "Drop queue location must have a world" }.uid,
+        location.x,
+        location.y,
+        location.z
+    )
 }
