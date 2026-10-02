@@ -17,14 +17,18 @@ loadbefore:
   - DeluxeCombat
   - ShopGUIPlus
   - DeluxeMenus
+
+depend:
+  - mcMMO
+
 commands:
   ecocleaner:
-    description: Toggle the stale player-placed block marker cleaner
+    description: Clean legacy player-placed block markers from chunk PDC
     permission: eco.command.ecocleaner
 
 permissions:
   eco.command.ecocleaner:
-    description: Allows toggling the stale block marker cleaner
+    description: Allows cleaning legacy PDC block markers
     default: op
 
 softdepend:
@@ -42,7 +46,6 @@ softdepend:
   - Matrix
   - Vulcan
   - PlaceholderAPI
-  - mcMMO
   - CombatLogX
   - ItemsAdder
   - Oraxen

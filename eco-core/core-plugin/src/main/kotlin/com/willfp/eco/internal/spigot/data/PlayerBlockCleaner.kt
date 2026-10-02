@@ -10,13 +10,12 @@ import org.bukkit.persistence.PersistentDataType
 import java.util.concurrent.atomic.AtomicLong
 
 /**
- * Removes stale player-placed markers left behind in chunk PDC.
+ * Removes ALL legacy player-placed block markers from chunk PDC.
  *
- * Older builds didn't clear markers when a block was removed by explosions, fire, fading, fluids
- * and so on, so chunks accumulated keys pointing at air. When a chunk loads, every marker key is
- * resolved back to the positions it can belong to (see [PlacedBlockKeys]); if all of them are
- * empty the marker is dropped. Markers that could still belong to an existing block, or that
- * can't be resolved at all (not ours, different world identity), are always kept.
+ * Since eco now uses mcMMO's BlockTracker instead of PDC storage, this cleaner removes
+ * all eco block markers left by older versions. It performs a full cleanup by removing
+ * any PDC key matching the block marker format (hex hash), regardless of whether the
+ * block still exists.
  */
 class PlayerBlockCleaner(
     private val plugin: EcoPlugin
@@ -44,7 +43,7 @@ class PlayerBlockCleaner(
     }
 
     /**
-     * Clean a chunk; must be called on the thread owning it.
+     * Clean a chunk, removing ALL eco block markers; must be called on the thread owning it.
      *
      * @return The number of markers removed.
      */
@@ -54,60 +53,24 @@ class PlayerBlockCleaner(
             return 0
         }
 
-        // The listener now clears markers itself, so each chunk only needs cleaning once. Check
-        // this before getKeys(), which allocates a NamespacedKey for every entry in the chunk.
-        val cleanedKey = plugin.namespacedKeyFactory.create(CLEANED_KEY)
-        if (pdc.has(cleanedKey)) {
-            return 0
-        }
-
-        val namespace = cleanedKey.namespace
+        val namespace = plugin.namespacedKeyFactory.create("dummy").namespace
         val keys = pdc.keys.filter { it.namespace == namespace }
+
         if (keys.isEmpty()) {
-            // Only other plugins' keys; flag it so the next load doesn't list them all again.
-            pdc.set(cleanedKey, PersistentDataType.BYTE, 1)
-            recordScan(0)
             return 0
         }
-
-        val world = chunk.world
-        val resolver = PlacedBlockKeys.ChunkResolver(
-            world.hashCode(),
-            chunk.x,
-            chunk.z,
-            world.minHeight,
-            world.maxHeight
-        )
 
         var count = 0
+        val blockKeyPattern = Regex("^-?[0-9a-f]{1,8}$")
 
         for (key in keys) {
-            val hash = PlacedBlockKeys.parseKey(key.key) ?: continue
-
-            // Only markers exactly as PlayerBlockListener writes them.
-            if (pdc.get(key, PersistentDataType.INTEGER) != 1) {
-                continue
+            // Match block marker format (hex hash)
+            if (blockKeyPattern.matches(key.key)) {
+                if (pdc.get(key, PersistentDataType.INTEGER) == 1) {
+                    pdc.remove(key)
+                    count++
+                }
             }
-
-            val positions = resolver.resolve(hash)
-            if (positions.isEmpty()) {
-                continue
-            }
-
-            val stale = positions.all {
-                PlacedBlockKeys.isRemoved(chunk.getBlock(it.x, it.y, it.z).type)
-            }
-
-            if (stale) {
-                pdc.remove(key)
-                count++
-            }
-        }
-
-        // A chunk left with an empty PDC is already skipped by the isEmpty check; anything else
-        // (live markers or other plugins' keys) gets the flag.
-        if (!pdc.isEmpty) {
-            pdc.set(cleanedKey, PersistentDataType.BYTE, 1)
         }
 
         recordScan(count)
@@ -123,11 +86,6 @@ class PlayerBlockCleaner(
         }
     }
 
-    private companion object {
-        // Not valid hex, so it can never be mistaken for a marker.
-        const val CLEANED_KEY = "placed-markers-cleaned-v1"
-    }
-
     /** Log and reset progress since the last report. */
     fun report() {
         val removedCount = removed.getAndSet(0)
@@ -135,7 +93,7 @@ class PlayerBlockCleaner(
 
         if (removedCount > 0) {
             plugin.logger.info(
-                "Removed $removedCount stale player-placed block markers from $scannedCount chunks"
+                "Removed $removedCount legacy PDC block markers from $scannedCount chunks"
             )
         }
     }

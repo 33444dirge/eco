@@ -138,7 +138,6 @@ import com.willfp.eco.internal.spigot.data.DataYml
 import com.willfp.eco.core.command.impl.PluginCommand
 import com.willfp.eco.internal.spigot.data.CommandEcoCleaner
 import com.willfp.eco.internal.spigot.data.PlayerBlockCleaner
-import com.willfp.eco.internal.spigot.data.PlayerBlockListener
 import com.willfp.eco.internal.spigot.data.profiles.ProfileHandler
 import com.willfp.eco.internal.spigot.data.profiles.ProfileLoadListener
 import com.willfp.eco.internal.spigot.drops.CollatedRunnable
@@ -592,7 +591,6 @@ abstract class EcoSpigotPlugin : EcoPlugin() {
             ArrowDataListener(this),
             ArmorChangeEventListeners(this),
             ProfileLoadListener(this, profileHandler),
-            PlayerBlockListener(this),
             playerBlockCleaner,
             ServerLocking,
             AutocrafterPatch,

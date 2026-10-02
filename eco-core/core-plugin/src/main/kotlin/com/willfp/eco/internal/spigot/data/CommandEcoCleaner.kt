@@ -7,10 +7,10 @@ import org.bukkit.command.CommandSender
 import org.bukkit.util.StringUtil
 
 /**
- * /ecocleaner <enable|disable|status>
+ * /ecocleaner <enable|disable|clean|status>
  *
- * Toggles [PlayerBlockCleaner] at runtime. The toggle isn't written to config.yml, so a restart
- * goes back to `clean-stale-block-markers`.
+ * Toggles [PlayerBlockCleaner] at runtime or manually triggers full cleanup.
+ * The toggle isn't written to config.yml, so a restart goes back to `clean-stale-block-markers`.
  */
 class CommandEcoCleaner(
     plugin: EcoPlugin,
@@ -25,21 +25,37 @@ class CommandEcoCleaner(
         when (args.firstOrNull()?.lowercase()) {
             "enable" -> {
                 cleaner.isEnabled = true
-                sender.send("&aStale block marker cleaner enabled. Chunks will be cleaned as they load.")
+                sender.send("&aAutomatic PDC cleaner enabled. Chunks will be cleaned as they load.")
             }
 
             "disable" -> {
                 cleaner.isEnabled = false
-                sender.send("&cStale block marker cleaner disabled.")
+                sender.send("&cAutomatic PDC cleaner disabled.")
+            }
+
+            "clean" -> {
+                sender.send("&eStarting manual cleanup of all loaded chunks...")
+                var totalCleaned = 0
+                var totalChunks = 0
+
+                for (world in plugin.server.worlds) {
+                    for (chunk in world.loadedChunks) {
+                        totalChunks++
+                        totalCleaned += cleaner.clean(chunk)
+                    }
+                }
+
+                sender.send("&aCleaned &e$totalCleaned&a markers from &e$totalChunks&a loaded chunks.")
             }
 
             "status" -> {
                 val (removed, scanned) = cleaner.totals
                 val state = if (cleaner.isEnabled) "&aenabled" else "&cdisabled"
-                sender.send("&fCleaner is $state&f. Since startup: &e$removed&f markers removed from &e$scanned&f chunks.")
+                sender.send("&fAutomatic cleaner is $state&f.")
+                sender.send("&fSince startup: &e$removed&f markers removed from &e$scanned&f chunks.")
             }
 
-            else -> sender.send("&fUsage: &e/ecocleaner <enable|disable|status>")
+            else -> sender.send("&fUsage: &e/ecocleaner <enable|disable|clean|status>")
         }
     }
 
@@ -56,6 +72,6 @@ class CommandEcoCleaner(
     }
 
     private companion object {
-        val OPTIONS = listOf("enable", "disable", "status")
+        val OPTIONS = listOf("enable", "disable", "clean", "status")
     }
 }

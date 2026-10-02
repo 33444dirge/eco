@@ -2,6 +2,7 @@ package com.willfp.eco.util;
 
 import com.willfp.eco.core.blocks.TestableBlock;
 import java.util.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -56,16 +57,25 @@ public final class BlockUtils {
     /**
      * Get if a block was placed by a player.
      *
+     * This method relies on mcMMO's BlockTracker API. If mcMMO is not installed,
+     * this will always return false (conservative approach: assume natural blocks).
+     *
      * @param block The block.
      * @return If placed by a player.
      */
     public static boolean isPlayerPlaced(@NotNull final Block block) {
-        Chunk chunk = block.getChunk();
+        // Use mcMMO's BlockTracker API
+        if (Bukkit.getPluginManager().getPlugin("mcMMO") != null) {
+            try {
+                return com.gmail.nossr50.mcMMO.getUserBlockTracker().isIneligible(block);
+            } catch (Exception e) {
+                // mcMMO API call failed, fallback to false
+                return false;
+            }
+        }
 
-        return chunk.getPersistentDataContainer().has(
-                NamespacedKeyUtils.createEcoKey(Integer.toString(block.getLocation().hashCode(), 16)),
-                PersistentDataType.INTEGER
-        );
+        // mcMMO not installed, cannot determine (conservative: assume natural)
+        return false;
     }
 
     private BlockUtils() {

@@ -112,9 +112,9 @@ enforce-preparing-recipes: false
 # as a workaround for player health being reset to 20 on login.
 enable-health-fix: true
 
-# eco marks player-placed blocks in chunk data. Older versions didn't clear these markers when blocks
-# were removed by explosions, fire, melting, fluids and so on, leaving stale entries in chunks. When
-# enabled, markers that only point at air or fluid are removed as chunks load. Markers that may still
-# belong to a block are never touched.
-# This is the state on startup; use /ecocleaner <enable|disable|status> to toggle it at runtime.
+# [Migration Tool] eco no longer stores player-placed blocks in chunk PDC, instead relying on mcMMO's
+# BlockTracker. This cleaner removes legacy PDC markers left by older versions of eco. When enabled,
+# all eco block markers are removed as chunks load. Use `/ecocleaner clean` to manually clean all
+# loaded chunks, or `/ecocleaner enable` to clean chunks automatically as they load.
+# Note: This setting is only needed during migration and can be disabled once cleanup is complete.
 clean-stale-block-markers: false
