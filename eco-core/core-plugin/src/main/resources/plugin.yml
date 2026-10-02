@@ -17,6 +17,16 @@ loadbefore:
   - DeluxeCombat
   - ShopGUIPlus
   - DeluxeMenus
+commands:
+  ecocleaner:
+    description: Toggle the stale player-placed block marker cleaner
+    permission: eco.command.ecocleaner
+
+permissions:
+  eco.command.ecocleaner:
+    description: Allows toggling the stale block marker cleaner
+    default: op
+
 softdepend:
   - ItemBridge
   - HuskClaims

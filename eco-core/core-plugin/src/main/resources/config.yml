@@ -111,3 +111,10 @@ enforce-preparing-recipes: false
 # If enabled, eco will save the health of players when they log out and restore it when they log back in
 # as a workaround for player health being reset to 20 on login.
 enable-health-fix: true
+
+# eco marks player-placed blocks in chunk data. Older versions didn't clear these markers when blocks
+# were removed by explosions, fire, melting, fluids and so on, leaving stale entries in chunks. When
+# enabled, markers that only point at air or fluid are removed as chunks load. Markers that may still
+# belong to a block are never touched.
+# This is the state on startup; use /ecocleaner <enable|disable|status> to toggle it at runtime.
+clean-stale-block-markers: false

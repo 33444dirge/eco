@@ -4,6 +4,10 @@ version = rootProject.version
 val bStatsVersion = "v3.2.1"
 val bStatsTargetPackage = "com.willfp.eco.libs.bstats"
 val bStatsGeneratedDir = layout.buildDirectory.dir("generated/sources/bstats")
+val localLibs = fileTree("../../lib")
+val localNightCore = localLibs.filter { it.name.contains("nightcore", ignoreCase = true) }
+val localExcellentEconomy = localLibs.filter { it.name.contains("ExcellentEconomy", ignoreCase = true) }
+val localExcellentShop = localLibs.filter { it.name.contains("ExcellentShop", ignoreCase = true) }
 
 val vendorBStats by tasks.registering {
     group = "vendor"
@@ -58,7 +62,10 @@ sourceSets.main {
 }
 
 tasks.compileJava { dependsOn(vendorBStats) }
-tasks.compileKotlin { dependsOn(vendorBStats) }
+tasks.compileKotlin {
+    dependsOn(vendorBStats)
+    exclude("**/ShopExcellentShop.kt")
+}
 tasks.sourcesJar { dependsOn(vendorBStats) }
 
 dependencies {
@@ -115,14 +122,17 @@ dependencies {
     compileOnly("com.denizenscript:denizen:1.3.0-SNAPSHOT") {
         exclude(group = "*", module = "*")
     }
-    compileOnly("com.iridium:IridiumSkyblock:4.1.2")
+    compileOnly("com.iridium:IridiumSkyblock:4.1.5")
     compileOnly("net.william278.huskclaims:huskclaims-bukkit:1.5.10")
     compileOnly("net.william278.husktowns:husktowns-bukkit:3.1.4")
     compileOnly("com.github.jojodmo:ItemBridge:b0054538c1")
     compileOnly("de.oliver:FancyHolograms:2.9.1")
-    compileOnly("su.nightexpress.excellenteconomy:ExcellentEconomy:2.8.0")
-    compileOnly("su.nightexpress.nightcore:main:2.16.3")
-    compileOnly("su.nightexpress.excellentshop:Core:4.22.0")
+    if (localExcellentEconomy.files.isNotEmpty()) compileOnly(files(localExcellentEconomy))
+    else compileOnly("su.nightexpress.excellenteconomy:ExcellentEconomy:2.8.0")
+    if (localNightCore.files.isNotEmpty()) compileOnly(files(localNightCore))
+    else compileOnly("su.nightexpress.nightcore:main:2.16.3")
+    if (localExcellentShop.files.isNotEmpty()) compileOnly(files(localExcellentShop))
+    else compileOnly("su.nightexpress.excellentshop:Core:4.22.0")
     compileOnly("dev.kitteh:factions:4.4.0")
 
     compileOnly(fileTree("../../lib") {

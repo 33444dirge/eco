@@ -135,6 +135,9 @@ import com.willfp.eco.internal.price.PriceFactoryXP
 import com.willfp.eco.internal.price.PriceFactoryXPLevels
 import com.willfp.eco.internal.spigot.arrows.ArrowDataListener
 import com.willfp.eco.internal.spigot.data.DataYml
+import com.willfp.eco.core.command.impl.PluginCommand
+import com.willfp.eco.internal.spigot.data.CommandEcoCleaner
+import com.willfp.eco.internal.spigot.data.PlayerBlockCleaner
 import com.willfp.eco.internal.spigot.data.PlayerBlockListener
 import com.willfp.eco.internal.spigot.data.profiles.ProfileHandler
 import com.willfp.eco.internal.spigot.data.profiles.ProfileLoadListener
@@ -204,7 +207,7 @@ import com.willfp.eco.internal.spigot.integrations.price.PriceFactoryRoyaleEcono
 import com.willfp.eco.internal.spigot.integrations.price.PriceFactoryUltraEconomy
 import com.willfp.eco.internal.spigot.integrations.shop.ShopDeluxeSellwands
 import com.willfp.eco.internal.spigot.integrations.shop.ShopEconomyShopGUI
-import com.willfp.eco.internal.spigot.integrations.shop.ShopExcellentShop
+// import com.willfp.eco.internal.spigot.integrations.shop.ShopExcellentShop
 import com.willfp.eco.internal.spigot.integrations.shop.ShopShopGuiPlus
 import com.willfp.eco.internal.spigot.integrations.shop.ShopZShop
 import com.willfp.eco.internal.spigot.metrics.PlayerflowHandler
@@ -231,6 +234,7 @@ abstract class EcoSpigotPlugin : EcoPlugin() {
     abstract val dataYml: DataYml
     abstract val profileHandler: ProfileHandler
     protected var bukkitAudiences: BukkitAudiences? = null
+    private val playerBlockCleaner by lazy { PlayerBlockCleaner(this) }
 
     init {
         Items.registerArgParser(ArgParserEnchantment)
@@ -443,6 +447,10 @@ abstract class EcoSpigotPlugin : EcoPlugin() {
         this.scheduler.runTimer(1L, 20L) {
             Recipes.checkBatching()
         }
+
+        this.scheduler.runTimer(6000L, 6000L) {
+            playerBlockCleaner.report()
+        }
     }
 
     override fun handleAfterLoad() {
@@ -515,7 +523,7 @@ abstract class EcoSpigotPlugin : EcoPlugin() {
             IntegrationLoader("DeluxeSellwands") { ShopManager.register(ShopDeluxeSellwands()) },
             IntegrationLoader("EconomyShopGUI") { ShopManager.register(ShopEconomyShopGUI()) },
             IntegrationLoader("EconomyShopGUI-Premium") { ShopManager.register(ShopEconomyShopGUI()) },
-            IntegrationLoader("ExcellentShop") { ShopManager.register(ShopExcellentShop()) },
+            // IntegrationLoader("ExcellentShop") { ShopManager.register(ShopExcellentShop()) },
 
             // Hologram
             IntegrationLoader("HolographicDisplays") { HologramManager.register(HologramHolographicDisplays(this)) },
@@ -585,6 +593,7 @@ abstract class EcoSpigotPlugin : EcoPlugin() {
             ArmorChangeEventListeners(this),
             ProfileLoadListener(this, profileHandler),
             PlayerBlockListener(this),
+            playerBlockCleaner,
             ServerLocking,
             AutocrafterPatch,
             PlayerHealthPatch,
@@ -600,6 +609,12 @@ abstract class EcoSpigotPlugin : EcoPlugin() {
         }
 
         return listeners
+    }
+
+    override fun loadPluginCommands(): List<PluginCommand> {
+        return listOf(
+            CommandEcoCleaner(this, playerBlockCleaner)
+        )
     }
 
     override fun loadPacketListeners(): List<PacketListener> {
