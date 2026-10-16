@@ -47,9 +47,9 @@ open class PacketWindowItems(
             player.lastDisplayFrame = DisplayFrame.EMPTY
         }
 
-        val itemStacks = packet.items.map { it.asBukkitStack() }
+        val itemStacks = packet.items.mapTo(ArrayList(packet.items.size)) { it.asBukkitStack() }
 
-        val newItems = modifyWindowItems(itemStacks.toMutableList(), windowId, player)
+        val newItems = modifyWindowItems(itemStacks, windowId, player)
 
         field.set(packet, newItems.map { it.asNMSStack() })
     }
@@ -73,14 +73,22 @@ open class PacketWindowItems(
 
             player.lastDisplayFrame = newFrame
 
-            val changes = lastFrame.getChangedSlots(newFrame)
-
-            for (index in changes) {
-                Display.display(itemStacks[index.toInt()], player)
+            // Decide all changes before display modules can mutate any item.
+            val changes = BooleanArray(itemStacks.size)
+            for ((slot, data) in newFrame.items) {
+                changes[slot.toInt()] = lastFrame.items[slot]?.hash != data.hash
             }
 
-            for (index in (itemStacks.indices subtract changes.map { it.toInt() }.toSet())) {
-                itemStacks[index] = lastFrame.getItem(index.toByte()) ?: itemStacks[index]
+            for (index in itemStacks.indices) {
+                if (changes[index]) {
+                    Display.display(itemStacks[index], player)
+                }
+            }
+
+            for (index in itemStacks.indices) {
+                if (!changes[index]) {
+                    itemStacks[index] = lastFrame.getItem(index.toByte()) ?: itemStacks[index]
+                }
             }
         } else {
             itemStacks.forEach { Display.display(it, player) }

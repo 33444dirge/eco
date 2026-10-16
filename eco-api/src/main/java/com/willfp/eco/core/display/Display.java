@@ -130,16 +130,12 @@ public final class Display {
      * @return The ItemStack.
      */
     public static ItemStack revert(@NotNull final ItemStack itemStack) {
-        if (Display.isFinalized(itemStack)) {
-            Display.unfinalize(itemStack);
-        }
-
         FastItemStack fast = FastItemStack.wrap(itemStack);
-
-        List<String> lore = new ArrayList<>(fast.getLore());
-        if (!lore.isEmpty() && lore.removeIf(line -> line.startsWith(Display.PREFIX))) {
-            fast.setLore(lore);
+        if (fast.getPersistentDataContainer().has(FINALIZE_KEY, PersistentDataType.INTEGER)) {
+            fast.getPersistentDataContainer().remove(FINALIZE_KEY);
         }
+
+        fast.removeLoreLinesWithPrefix(Display.PREFIX);
 
         for (List<DisplayModule> modules : REGISTERED_MODULES.values()) {
             for (DisplayModule module : modules) {

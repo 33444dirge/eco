@@ -1,6 +1,7 @@
 package com.willfp.eco.core.fast;
 
 import com.willfp.eco.core.Eco;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -78,6 +79,19 @@ public interface FastItemStack extends PersistentDataHolder {
      * @return The lore.
      */
     List<String> getLore();
+
+    /**
+     * Remove lore lines whose legacy text starts with a prefix.
+     * Leaves the original components untouched when no lines match.
+     *
+     * @param prefix The prefix to remove.
+     */
+    default void removeLoreLinesWithPrefix(@NotNull String prefix) {
+        List<String> lore = new ArrayList<>(getLore());
+        if (!lore.isEmpty() && lore.removeIf(line -> line.startsWith(prefix))) {
+            setLore(lore);
+        }
+    }
 
     /**
      * Get the item lore.

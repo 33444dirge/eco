@@ -36,9 +36,9 @@ class NewItemsPacketWindowItems(
             player.lastDisplayFrame = DisplayFrame.EMPTY
         }
 
-        val itemStacks = packet.items.map { it.asBukkitStack() }
+        val itemStacks = packet.items.mapTo(ArrayList(packet.items.size)) { it.asBukkitStack() }
 
-        val newItems = modifyWindowItems(itemStacks.toMutableList(), windowId, player)
+        val newItems = modifyWindowItems(itemStacks, windowId, player)
 
         val newPacket = ClientboundContainerSetContentPacket(
             packet.containerId,

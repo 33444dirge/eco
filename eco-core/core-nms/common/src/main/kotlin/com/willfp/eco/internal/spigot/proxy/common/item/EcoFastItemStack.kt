@@ -1,6 +1,8 @@
 package com.willfp.eco.internal.spigot.proxy.common.item
 
 import com.willfp.eco.core.fast.FastItemStack
+import com.willfp.eco.core.display.Display
+import io.papermc.paper.adventure.AdventureComponent
 import com.willfp.eco.internal.spigot.proxy.common.asNMSStack
 import com.willfp.eco.internal.spigot.proxy.common.makePdc
 import com.willfp.eco.internal.spigot.proxy.common.mergeIfNeeded
@@ -18,6 +20,7 @@ import net.kyori.adventure.text.format.TextDecoration
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.chat.contents.PlainTextContents
 import net.minecraft.world.item.component.CustomData
 import net.minecraft.world.item.component.TooltipDisplay
 import net.minecraft.world.item.component.ItemLore
@@ -67,7 +70,18 @@ class EcoFastItemStack(
 ) : ImplementedFIS {
     private val handle = bukkit.asNMSStack()
 
-    private val pdc = (handle.get(DataComponents.CUSTOM_DATA)?.copyTag() ?: CompoundTag()).makePdc()
+    // Capture an independent snapshot now, including the existing malformed-tag check.
+    // Only PublicBukkitValues belongs to this wrapper; apply() merges it into current custom data.
+    private var pdcSnapshot = handle.get(DataComponents.CUSTOM_DATA)?.copyTag()?.let {
+        if (it.contains("PublicBukkitValues")) it.getCompound("PublicBukkitValues").get() else null
+    }
+    private var initializedPdc: PersistentDataContainer? = null
+
+    private val pdc: PersistentDataContainer
+        get() = initializedPdc ?: (pdcSnapshot?.makePdc(base = true) ?: CompoundTag().makePdc()).also {
+            initializedPdc = it
+            pdcSnapshot = null
+        }
 
     override fun getEnchants(checkStored: Boolean): Map<Enchantment, Int> {
         val enchantments = handle.get(DataComponents.ENCHANTMENTS) ?: ItemEnchantments.EMPTY
@@ -136,7 +150,28 @@ class EcoFastItemStack(
     }
 
     override fun getLore(): List<String> =
-        loreComponents.map { StringUtils.toLegacy(it) }
+        handle.get(DataComponents.LORE)?.lines?.map { StringUtils.toLegacy(it.toAdventure()) } ?: emptyList()
+
+    override fun removeLoreLinesWithPrefix(prefix: String) {
+        // Legacy formatting emits valid color/style codes, never the display marker §z.
+        // Only skip conversion when every native text node is known to contain no §.
+        if (prefix == Display.PREFIX) {
+            val lines = handle.get(DataComponents.LORE)?.lines ?: return
+            if (lines.all { it.isPlainWithoutSectionSign(0) }) return
+        }
+
+        super<ImplementedFIS>.removeLoreLinesWithPrefix(prefix)
+    }
+
+    private fun net.minecraft.network.chat.Component.isPlainWithoutSectionSign(depth: Int): Boolean {
+        // Inspecting an Adventure wrapper would itself trigger native conversion.
+        if (this is AdventureComponent || depth >= 32) return false
+        val style = style
+        if (style.hoverEvent != null || style.clickEvent != null || style.insertion != null) return false
+        val text = contents as? PlainTextContents ?: return false
+        if ('§' in text.text()) return false
+        return siblings.all { it.isPlainWithoutSectionSign(depth + 1) }
+    }
 
     override fun setDisplayName(name: Component?) {
         if (name == null) {
