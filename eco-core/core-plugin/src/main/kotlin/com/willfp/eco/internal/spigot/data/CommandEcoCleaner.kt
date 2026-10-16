@@ -7,9 +7,9 @@ import org.bukkit.command.CommandSender
 import org.bukkit.util.StringUtil
 
 /**
- * /ecocleaner <enable|disable|clean|status>
+ * /ecocleaner <enable|disable|status>
  *
- * Toggles [PlayerBlockCleaner] at runtime or manually triggers full cleanup.
+ * Toggles [PlayerBlockCleaner] at runtime or reports cleanup progress.
  * The toggle isn't written to config.yml, so a restart goes back to `clean-stale-block-markers`.
  */
 class CommandEcoCleaner(
@@ -33,21 +33,6 @@ class CommandEcoCleaner(
                 sender.send("&cAutomatic PDC cleaner disabled.")
             }
 
-            "clean" -> {
-                sender.send("&eStarting manual cleanup of all loaded chunks...")
-                var totalCleaned = 0
-                var totalChunks = 0
-
-                for (world in plugin.server.worlds) {
-                    for (chunk in world.loadedChunks) {
-                        totalChunks++
-                        totalCleaned += cleaner.clean(chunk)
-                    }
-                }
-
-                sender.send("&aCleaned &e$totalCleaned&a markers from &e$totalChunks&a loaded chunks.")
-            }
-
             "status" -> {
                 val (removed, scanned) = cleaner.totals
                 val state = if (cleaner.isEnabled) "&aenabled" else "&cdisabled"
@@ -55,7 +40,7 @@ class CommandEcoCleaner(
                 sender.send("&fSince startup: &e$removed&f markers removed from &e$scanned&f chunks.")
             }
 
-            else -> sender.send("&fUsage: &e/ecocleaner <enable|disable|clean|status>")
+            else -> sender.send("&fUsage: &e/ecocleaner <enable|disable|status>")
         }
     }
 
@@ -72,6 +57,6 @@ class CommandEcoCleaner(
     }
 
     private companion object {
-        val OPTIONS = listOf("enable", "disable", "clean", "status")
+        val OPTIONS = listOf("enable", "disable", "status")
     }
 }

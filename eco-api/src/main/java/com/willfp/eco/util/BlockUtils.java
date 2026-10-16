@@ -3,10 +3,8 @@ package com.willfp.eco.util;
 import com.willfp.eco.core.blocks.TestableBlock;
 import java.util.*;
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -57,25 +55,30 @@ public final class BlockUtils {
     /**
      * Get if a block was placed by a player.
      *
-     * This method relies on mcMMO's BlockTracker API. If mcMMO is not installed,
-     * this will always return false (conservative approach: assume natural blocks).
+     * Uses mcMMO's reward-ineligibility tracker, which also includes blocks made unnatural
+     * by pistons and other anti-exploit rules. If tracking is unavailable, treat the block
+     * as ineligible instead of granting rewards based on missing data.
      *
      * @param block The block.
      * @return If placed by a player.
      */
     public static boolean isPlayerPlaced(@NotNull final Block block) {
         // Use mcMMO's BlockTracker API
-        if (Bukkit.getPluginManager().getPlugin("mcMMO") != null) {
+        final var mcMMOPlugin = Bukkit.getPluginManager().getPlugin("mcMMO");
+        if (mcMMOPlugin != null && mcMMOPlugin.isEnabled()) {
             try {
-                return com.gmail.nossr50.mcMMO.getUserBlockTracker().isIneligible(block);
+                final var tracker = com.gmail.nossr50.mcMMO.getUserBlockTracker();
+                if (tracker == null || tracker instanceof com.gmail.nossr50.util.blockmeta.NullChunkManager) {
+                    return true;
+                }
+                return tracker.isIneligible(block);
             } catch (Exception e) {
-                // mcMMO API call failed, fallback to false
-                return false;
+                // Missing tracking data must not make a potentially unnatural block rewardable.
+                return true;
             }
         }
 
-        // mcMMO not installed, cannot determine (conservative: assume natural)
-        return false;
+        return true;
     }
 
     private BlockUtils() {

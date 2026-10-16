@@ -1,11 +1,14 @@
 package com.willfp.eco.internal.gui.menu
 
 import com.willfp.eco.core.gui.menu.Menu
+import java.util.Collections
 import java.util.WeakHashMap
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 
-private val inventories = WeakHashMap<Inventory, RenderedInventory>()
+// Folia fires inventory events concurrently on different player region threads.
+// Even reads can mutate a WeakHashMap while it removes collected keys.
+private val inventories = Collections.synchronizedMap(WeakHashMap<Inventory, RenderedInventory>())
 
 object MenuHandler {
     fun registerInventory(

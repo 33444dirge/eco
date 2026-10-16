@@ -1,4 +1,6 @@
 dependencies {
+    // mcMMO's optional expansion type is inspected by the test mocking agent.
+    testRuntimeOnly("me.clip:placeholderapi:2.11.7")
     // Adventure
     compileOnly("net.kyori:adventure-platform-bukkit:4.4.1")
 

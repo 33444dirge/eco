@@ -66,7 +66,11 @@ class PlayerBlockCleaner(
         for (key in keys) {
             // Match block marker format (hex hash)
             if (blockKeyPattern.matches(key.key)) {
-                if (pdc.get(key, PersistentDataType.INTEGER) == 1) {
+                // PDC#get throws when a legacy or foreign key uses another data type.
+                // Ignore those keys so one malformed entry cannot abort the migration scan.
+                if (pdc.has(key, PersistentDataType.INTEGER)
+                    && pdc.get(key, PersistentDataType.INTEGER) == 1
+                ) {
                     pdc.remove(key)
                     count++
                 }

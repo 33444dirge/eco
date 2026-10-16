@@ -4,7 +4,6 @@ import com.willfp.eco.core.EcoPlugin
 import com.willfp.eco.core.gui.player
 import com.willfp.eco.core.gui.slot.Slot
 import com.willfp.eco.internal.gui.menu.EcoMenu
-import com.willfp.eco.internal.gui.menu.MenuHandler
 import com.willfp.eco.internal.gui.menu.asRenderedInventory
 import com.willfp.eco.internal.gui.menu.getMenu
 import com.willfp.eco.internal.gui.menu.renderedInventory
@@ -140,8 +139,6 @@ class GUIListener(private val plugin: EcoPlugin) : Listener {
         menu.refresh(event.player as Player)
 
         menu.handleClose(event)
-
-        plugin.scheduler.run { MenuHandler.unregisterInventory(event.inventory) }
     }
 
     @EventHandler(
@@ -234,6 +231,6 @@ class GUIListener(private val plugin: EcoPlugin) : Listener {
         val rendered = this.renderedInventory ?: return
 
         rendered.render()
-        plugin.scheduler.run { rendered.render() }
+        plugin.scheduler.runAtEntity(this) { rendered.render() }
     }
 }

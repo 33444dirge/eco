@@ -114,7 +114,7 @@ enable-health-fix: true
 
 # [Migration Tool] eco no longer stores player-placed blocks in chunk PDC, instead relying on mcMMO's
 # BlockTracker. This cleaner removes legacy PDC markers left by older versions of eco. When enabled,
-# all eco block markers are removed as chunks load. Use `/ecocleaner clean` to manually clean all
-# loaded chunks, or `/ecocleaner enable` to clean chunks automatically as they load.
+# all eco block markers are removed as chunks load. Use `/ecocleaner enable` to clean chunks
+# automatically as they load.
 # Note: This setting is only needed during migration and can be disabled once cleanup is complete.
 clean-stale-block-markers: false

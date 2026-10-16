@@ -9,3 +9,8 @@ dependencies {
     compileOnly("org.yaml:snakeyaml:2.5")
     compileOnly("io.hotmoka:toml4j:0.7.3")
 }
+
+// The Paper 1.21.4 API still refers to MessageType, which Adventure 5 removed.
+configurations.testRuntimeClasspath {
+    resolutionStrategy.force("net.kyori:adventure-api:4.21.0")
+}
