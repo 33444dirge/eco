@@ -5,4 +5,6 @@ import org.bukkit.inventory.ItemStack
 
 interface FastItemStackFactoryProxy {
     fun create(itemStack: ItemStack): FastItemStack
+
+    fun hash(itemStack: ItemStack): Int = create(itemStack).hashCode()
 }

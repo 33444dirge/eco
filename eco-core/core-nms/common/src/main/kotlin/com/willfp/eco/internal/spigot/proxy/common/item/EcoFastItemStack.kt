@@ -71,9 +71,10 @@ class EcoFastItemStack(
     private val handle = bukkit.asNMSStack()
 
     // Capture an independent snapshot now, including the existing malformed-tag check.
-    // Only PublicBukkitValues belongs to this wrapper; apply() merges it into current custom data.
-    private var pdcSnapshot = handle.get(DataComponents.CUSTOM_DATA)?.copyTag()?.let {
-        if (it.contains("PublicBukkitValues")) it.getCompound("PublicBukkitValues").get() else null
+    // Read the source without mutating it and copy only the owned subtree.
+    // apply() merges this independent snapshot into the current custom data.
+    private var pdcSnapshot = handle.get(DataComponents.CUSTOM_DATA)?.unsafe?.let {
+        if (it.contains("PublicBukkitValues")) it.getCompound("PublicBukkitValues").get().copy() else null
     }
     private var initializedPdc: PersistentDataContainer? = null
 

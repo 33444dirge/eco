@@ -357,6 +357,16 @@ public interface Eco {
     FastItemStack createFastItemStack(@NotNull ItemStack itemStack);
 
     /**
+     * Get the FastItemStack hash without requiring a mutable item wrapper.
+     *
+     * @param itemStack The item.
+     * @return The same hash as createFastItemStack(itemStack).hashCode().
+     */
+    default int getItemHash(@NotNull ItemStack itemStack) {
+        return createFastItemStack(itemStack).hashCode();
+    }
+
+    /**
      * Register bStats metrics.
      *
      * @param plugin The plugin.

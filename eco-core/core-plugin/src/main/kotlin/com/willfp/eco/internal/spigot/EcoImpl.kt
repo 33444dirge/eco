@@ -287,6 +287,9 @@ class EcoImpl : EcoSpigotPlugin(), Eco {
     override fun createFastItemStack(itemStack: ItemStack) =
         getProxy(FastItemStackFactoryProxy::class.java).create(itemStack)
 
+    override fun getItemHash(itemStack: ItemStack) =
+        getProxy(FastItemStackFactoryProxy::class.java).hash(itemStack)
+
     override fun registerBStats(plugin: EcoPlugin) =
         MetricHandler.createMetrics(plugin)
 

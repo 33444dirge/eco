@@ -1,5 +1,6 @@
 package com.willfp.eco.core.items;
 
+import com.willfp.eco.core.Eco;
 import com.willfp.eco.core.fast.FastItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -88,7 +89,9 @@ public final class HashedItem {
      * @return The hashed item.
      */
     public static HashedItem of(@NotNull final ItemStack item) {
-        return new HashedItem(item, FastItemStack.wrap(item).hashCode());
+        return new HashedItem(item, item == null
+                ? FastItemStack.wrap(null).hashCode()
+                : Eco.get().getItemHash(item));
     }
 
     /**
